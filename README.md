@@ -15,17 +15,20 @@ ulimit -a
 nano /usr/lib/systemd/system/squid.service
 
 [Unit]
-Description=Squid caching proxy
-After=syslog.target network.target nss-lookup.target
+Description=SQUID 4to6 proxyservice
+After=network.target
 
 [Service]
 Type=forking
-LimitNOFILE=16384
-EnvironmentFile=/etc/sysconfig/squid
-ExecStartPre=/usr/libexec/squid/cache_swap.sh
-ExecStart=/usr/sbin/squid $SQUID_OPTS -f $SQUID_CONF
-ExecReload=/usr/sbin/squid $SQUID_OPTS -k reconfigure -f $SQUID_CONF
-ExecStop=/usr/sbin/squid -k shutdown -f $SQUID_CONF
+#ExecStartPre=/usr/libexec/squid/cache_swap.sh
+ExecStart=/usr/sbin/squid -f /etc/squid/squid.conf
+ExecReload=/usr/sbin/squid -k reconfigure -f /etc/squid/squid.conf
+ExecStop=/usr/sbin/squid -k shutdown -f /etc/squid/squid.conf
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+
 
 [Install]
 WantedBy=multi-user.target
