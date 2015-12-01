@@ -40,3 +40,5 @@ touch /var/log/squid/cache.log
 chmod -R 777 /var/log/squid/store.log
 chmod -R 777 /var/log/squid/cache.log
 chmod -R 777 /var/log/squid/access.log
+
+squid -NCd1
