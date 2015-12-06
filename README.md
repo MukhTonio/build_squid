@@ -1,10 +1,15 @@
 # build_squid
 
-yum -y groupinstall development tools nano mc
+yum -y groupinstall development tools nano mc net-tools
 
+mkdir /src
+cd /src/
 wget http://www.squid-cache.org/Versions/v3/3.5/squid-3.5.12.tar.gz
+tar -xvf squid-3.5.12.tar.gz
 
---prefix=/usr --exec-prefix=/usr --bindir=/usr/bin --sbindir=/usr/sbin --datadir=/usr/share --libdir=/usr/lib64 --libexecdir=/usr/libexec --sharedstatedir=/var/lib --mandir=/usr/share/man --infodir=/usr/share/info --localstatedir=/var --includedir=/usr/include --sysconfdir=/etc/squid CXXFLAGS=-DMAXTCPLISTENPORTS=10000 --enable-ltdl-convenience --disable-strict-error-checking --exec_prefix=/usr --with-logdir=$(localstatedir)/log/squid --with-pidfile=$(localstatedir)/run/squid.pid
+cd squid-3.5.12/
+
+./configure --prefix=/usr --exec-prefix=/usr --bindir=/usr/bin --sbindir=/usr/sbin --datadir=/usr/share --libdir=/usr/lib64 --libexecdir=/usr/libexec --sharedstatedir=/var/lib --mandir=/usr/share/man --infodir=/usr/share/info --localstatedir=/var --includedir=/usr/include --sysconfdir=/etc/squid CXXFLAGS=-DMAXTCPLISTENPORTS=10000 --enable-ltdl-convenience --disable-strict-error-checking --exec_prefix=/usr --with-logdir=$(localstatedir)/log/squid --with-pidfile=$(localstatedir)/run/squid.pid
 
 make all
 make install
@@ -45,3 +50,24 @@ chmod -R 777 /var/log/squid/cache.log
 chmod -R 777 /var/log/squid/access.log
 
 squid -NCd1
+
+systemctl enable squid
+systemctl start squid
+
+tail -f /var/log/squid/access.log
+
+
+nano /etc/logrotate.conf
+
+/var/log/squid/*.log { 
+    weekly
+    rotate 10
+    compress
+    delaycompress
+    notifempty
+    missingok
+    sharedscripts
+    postrotate
+      /usr/sbin/squid -k rotate
+    endscript
+}
